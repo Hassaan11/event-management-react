@@ -1,0 +1,14 @@
+.input-box {
+  width: 100%;
+  border: 0.5px solid lightgrey !important;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  padding: 5px;
+  font-size: 14px;
+  text-indent: 10px !important;
+}
+
+.input-box::placeholder {
+  text-indent: 10px !important;
+  font-size: 14px;
+}

@@ -1,0 +1,36 @@
+.createEventContainer {
+  width: 85%;
+  margin: 0 auto;
+}
+
+.input-fields {
+  width: 80%;
+  margin: 0 auto;
+}
+.row {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.col-sm-6,
+.col-sm-4 {
+  padding-right: 10px;
+  margin-bottom: 10px;
+}
+
+.col-sm-12 {
+  margin-bottom: 10px;
+}
+
+.alert-danger {
+  color: red;
+  margin-bottom: 10px;
+}
+
+.box {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  min-height: 100px;
+  border-radius: 8px;
+  padding: 20px !important;
+}
