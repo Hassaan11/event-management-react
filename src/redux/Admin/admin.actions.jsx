@@ -1,31 +1,16 @@
 import axios from "axios";
 import {
-  SIGNIN_REQUEST,
   SIGNIN_SUCCESS,
-  SIGNIN_FAIL,
   SIGNOUT,
-  ALL_EVENTS_FAIL,
   ALL_EVENTS_SUCCESS,
-  ALL_EVENTS_REQUEST,
-  EVENT_DETAIL_REQUEST,
   EVENT_DETAIL_SUCCESS,
-  EVENT_DETAIL_FAIL,
-  CREATE_EVENT_REQUEST,
   CREATE_EVENT_SUCCESS,
-  CREATE_EVENT_FAIL,
-  UPDATE_EVENT_REQUEST,
   UPDATE_EVENT_SUCCESS,
-  UPDATE_EVENT_FAIL,
-  DELETE_EVENT_REQUEST,
   DELETE_EVENT_SUCCESS,
-  DELETE_EVENT_FAIL,
+  UPDATE_SUCCESS,
 } from "./admin.constants";
 
 export const loginGoogle = (response) => async (dispatch) => {
-  dispatch({
-    type: SIGNIN_REQUEST,
-    payload: { response },
-  });
   try {
     const { data } = await axios.post("/api/admin/signin", {
       response,
@@ -34,13 +19,7 @@ export const loginGoogle = (response) => async (dispatch) => {
 
     localStorage.setItem("userInfo", JSON.stringify(data));
   } catch (error) {
-    dispatch({
-      type: SIGNIN_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
-    });
+    console.log("loginGoogle", error);
   }
 };
 
@@ -56,19 +35,6 @@ export const createNewEvent =
     attendees
   ) =>
   async (dispatch) => {
-    dispatch({
-      type: CREATE_EVENT_REQUEST,
-      payload: {
-        title,
-        description,
-        venue,
-        date,
-        startTime,
-        endTime,
-        registrationDeadline,
-        attendees,
-      },
-    });
     try {
       const { data } = await axios.post("/api/admin/createEvent", {
         title: title,
@@ -82,13 +48,7 @@ export const createNewEvent =
       });
       dispatch({ type: CREATE_EVENT_SUCCESS, payload: data });
     } catch (error) {
-      dispatch({
-        type: CREATE_EVENT_FAIL,
-        payload:
-          error.response && error.response.data.message
-            ? error.response.data.message
-            : error.message,
-      });
+      console.log("createNewEvent", error);
     }
   };
 
@@ -106,21 +66,6 @@ export const updateEvent =
     id
   ) =>
   async (dispatch) => {
-    dispatch({
-      type: UPDATE_EVENT_REQUEST,
-      payload: {
-        title,
-        description,
-        venue,
-        date,
-        startTime,
-        endTime,
-        registrationDeadline,
-        attendees,
-        eventId,
-        id,
-      },
-    });
     try {
       const { data } = await axios.post(`/api/admin/updateEvent/${id}`, {
         title: title,
@@ -135,72 +80,43 @@ export const updateEvent =
       });
       dispatch({ type: UPDATE_EVENT_SUCCESS, payload: data });
     } catch (error) {
-      dispatch({
-        type: UPDATE_EVENT_FAIL,
-        payload:
-          error.response && error.response.data.message
-            ? error.response.data.message
-            : error.message,
-      });
+      console.log("updateEvent", error);
     }
   };
 
 export const getAllEvents = () => async (dispatch) => {
-  dispatch({
-    type: ALL_EVENTS_REQUEST,
-    payload: {},
-  });
   try {
     const { data } = await axios.get("/api/admin/events");
     dispatch({ type: ALL_EVENTS_SUCCESS, payload: data });
   } catch (error) {
-    dispatch({
-      type: ALL_EVENTS_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
-    });
+    console.log("getAllEvents", error);
   }
 };
 
-export const getEventDetail = (id) => async (dispatch) => {
+export const updateSuccess = () => async (dispatch) => {
   dispatch({
-    type: EVENT_DETAIL_REQUEST,
-    payload: {},
+    type: UPDATE_SUCCESS,
+    payload: false,
   });
+};
+
+export const getEventDetail = (id) => async (dispatch) => {
   try {
     const { data } = await axios.get(`/api/admin/event/${id}`);
     dispatch({ type: EVENT_DETAIL_SUCCESS, payload: data });
   } catch (error) {
-    dispatch({
-      type: EVENT_DETAIL_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
-    });
+    console.log("getEventDetail", error);
   }
 };
 
 export const deleteEvent = (eventId, id) => async (dispatch) => {
-  dispatch({
-    type: DELETE_EVENT_REQUEST,
-    payload: { eventId, id },
-  });
   try {
     const { data } = await axios.post(`/api/admin/delete/${id}`, {
       eventId: eventId,
     });
     dispatch({ type: DELETE_EVENT_SUCCESS, payload: data });
   } catch (error) {
-    dispatch({
-      type: DELETE_EVENT_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
-    });
+    console.log("deleteEvent", error);
   }
 };
 

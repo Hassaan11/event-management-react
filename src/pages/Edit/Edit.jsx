@@ -1,25 +1,27 @@
 import { TextField } from "@mui/material";
-import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Button from "../../components/Button/Button";
+import LoadingBox from "../../components/Loading/LoadingBox";
+import MessageBox from "../../components/MessageBox/MessageBox";
 import MyNavbar from "../../components/Navbar/Navbar";
-import { updateEvent, getEventDetail } from "../../redux/Admin/admin.actions";
+import {
+  updateEvent,
+  getEventDetail,
+  updateSuccess,
+} from "../../redux/Admin/admin.actions";
 
 import "./Edit.css";
 
-<ToastContainer autoClose={10000} hideProgressBar={true} />;
-
 const EditEvent = () => {
+  const navigate = useNavigate();
   let { id } = useParams();
   const dispatch = useDispatch();
 
-  const eventDetail = useSelector((state) => state.eventDetail.event);
+  const eventDetail = useSelector((state) => state.admin.event);
 
   const [title, setTitle] = useState(eventDetail?.title || "");
   const [description, setDescription] = useState(
@@ -56,8 +58,13 @@ const EditEvent = () => {
     setAttendee(r);
   };
 
-  const updateEventDetail = useSelector((state) => state.updateEventDetail);
-  const { loading, success } = updateEventDetail;
+  const updateEventDetail = useSelector((state) => state.admin);
+  const { success } = updateEventDetail;
+
+  if (success) {
+    dispatch(updateSuccess());
+    navigate(`/event/${id}`);
+  }
 
   const update = () => {
     dispatch(
@@ -68,9 +75,7 @@ const EditEvent = () => {
         moment(date).format("YYYY-MM-DD"),
         startTime,
         endTime,
-        registrationDeadline && registrationDeadline.$d
-          ? moment(registrationDeadline?.$d).format()
-          : registrationDeadline,
+        moment(registrationDeadline).format("YYYY-MM-DD"),
         attendee,
         eventDetail?.eventId,
         id
@@ -101,6 +106,13 @@ const EditEvent = () => {
         <h3 className="text-center mb-3">Update Event</h3>
         <div className="input-fields">
           <div className="row">
+            {success && (
+              <MessageBox variant="success">
+                Event Updated Successfully
+              </MessageBox>
+            )}
+          </div>
+          <div className="row mt-3">
             <div className="col-sm-6">
               <TextField
                 id="title"
@@ -236,28 +248,24 @@ const EditEvent = () => {
             </div>
 
             <div className="col-sm-6">
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DateTimePicker
-                  className="w-100"
-                  renderInput={(props) => (
-                    <TextField
-                      id="deadline"
-                      label="Registration Deadline"
-                      name="deadline"
-                      required
-                      fullWidth
-                      placeholder="Registration Deadline"
-                      InputLabelProps={{ shrink: true }}
-                      {...props}
-                    />
-                  )}
-                  label="Registration Deadline"
-                  value={registrationDeadline}
-                  onChange={(newValue) => {
-                    setRegistrationDeadline(newValue);
-                  }}
-                />
-              </LocalizationProvider>
+              <TextField
+                id="deadline"
+                label="Registration Deadline"
+                placeholder="Registration Deadline"
+                name="deadline"
+                type="date"
+                autoComplete="on"
+                InputLabelProps={{ shrink: true }}
+                error={!registrationDeadline}
+                required
+                fullWidth
+                defaultValue={registrationDeadline}
+                value={moment(registrationDeadline).format("YYYY-MM-DD")}
+                size="sm"
+                color="primary"
+                variant="outlined"
+                onChange={(e) => setRegistrationDeadline(e.target.value)}
+              />
             </div>
           </div>
           <div className="text-center alert-danger">{EmailError.email}</div>

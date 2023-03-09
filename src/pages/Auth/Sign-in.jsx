@@ -34,6 +34,10 @@ const SignIn = () => {
             onFailure={(err) => console.log("fail", err)}
             cookiePolicy={"single_host_origin"}
             className="cursor-pointer googlelogin"
+            // responseType="code"
+            // scope="email profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly"
+            accessType="offline"
+            prompt="consent"
           />
           {/* <div class="sign-in-form-or">
             <hr />

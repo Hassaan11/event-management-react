@@ -23,9 +23,9 @@ const Events = () => {
   const [event, setEvent] = useState([]);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const dispatch = useDispatch();
-  const events = useSelector((state) => state.listEvents?.events);
-  const eventDelete = useSelector((state) => state.eventDelete);
-  const { success, loading, error, events: allEvents } = eventDelete;
+  const events = useSelector((state) => state.admin?.events);
+  const eventDelete = useSelector((state) => state.admin);
+  const { events: allEvents } = eventDelete;
 
   useEffect(() => {
     dispatch(getAllEvents());
@@ -145,7 +145,7 @@ const Events = () => {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={events?.length}
+            count={event?.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
