@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Button from "../../components/Button/Button";
-import LoadingBox from "../../components/Loading/LoadingBox";
 import MessageBox from "../../components/MessageBox/MessageBox";
 import MyNavbar from "../../components/Navbar/Navbar";
 import {
@@ -13,6 +12,9 @@ import {
   getEventDetail,
   updateSuccess,
 } from "../../redux/Admin/admin.actions";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 import "./Edit.css";
 
@@ -62,25 +64,42 @@ const EditEvent = () => {
   const { success } = updateEventDetail;
 
   if (success) {
+    toast.success("Event Updated Successfully", {
+      autoClose: 5000,
+    });
     dispatch(updateSuccess());
-    navigate(`/event/${id}`);
+    setTimeout(() => navigate(`/event/${id}`), 2000);
   }
 
   const update = () => {
-    dispatch(
-      updateEvent(
-        title,
-        description,
-        venue,
-        moment(date).format("YYYY-MM-DD"),
-        startTime,
-        endTime,
-        moment(registrationDeadline).format("YYYY-MM-DD"),
-        attendee,
-        eventDetail?.eventId,
-        id
-      )
-    );
+    if (
+      !title ||
+      !description ||
+      !venue ||
+      !date ||
+      !startTime ||
+      !endTime ||
+      !registrationDeadline
+    ) {
+      toast.error("Please Fill the Required Fields", {
+        autoClose: 5000,
+      });
+    } else {
+      dispatch(
+        updateEvent(
+          title,
+          description,
+          venue,
+          moment(date).format("YYYY-MM-DD"),
+          startTime,
+          endTime,
+          moment(registrationDeadline).format("YYYY-MM-DD"),
+          attendee,
+          eventDetail?.eventId,
+          id
+        )
+      );
+    }
   };
 
   useEffect(() => {
@@ -347,6 +366,7 @@ const EditEvent = () => {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </>
   );
 };

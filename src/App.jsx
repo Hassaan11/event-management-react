@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import React from "react";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "react-bootstrap/dist/react-bootstrap.min.js";
 
@@ -13,7 +14,7 @@ import CreateEvent from "./pages/Create/Create";
 import EditEvent from "./pages/Edit/Edit";
 
 function App() {
-  const user = useSelector((state) => state.login?.userInfo?.user);
+  const user = useSelector((state) => state?.login?.userInfo?.user);
 
   return (
     <>

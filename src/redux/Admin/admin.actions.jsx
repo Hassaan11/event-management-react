@@ -10,9 +10,25 @@ import {
   UPDATE_SUCCESS,
 } from "./admin.constants";
 
+const API_URL = "http://localhost:5000";
+axios.defaults.withCredentials = true;
+
+export const loginCode = (response) => async (dispatch) => {
+  try {
+    const { data } = await axios.post(`${API_URL}/api/admin/auth/token`, {
+      response,
+    });
+    dispatch({ type: SIGNIN_SUCCESS, payload: data });
+
+    localStorage.setItem("userInfo", JSON.stringify(data));
+  } catch (error) {
+    console.log("loginGoogle", error);
+  }
+};
+
 export const loginGoogle = (response) => async (dispatch) => {
   try {
-    const { data } = await axios.post("/api/admin/signin", {
+    const { data } = await axios.post(`${API_URL}/api/admin/signin`, {
       response,
     });
     dispatch({ type: SIGNIN_SUCCESS, payload: data });
@@ -34,18 +50,26 @@ export const createNewEvent =
     registrationDeadline,
     attendees
   ) =>
-  async (dispatch) => {
+  async (dispatch, getState) => {
     try {
-      const { data } = await axios.post("/api/admin/createEvent", {
-        title: title,
-        description: description,
-        venue: venue,
-        date: date,
-        startTime: startTime,
-        endTime: endTime,
-        registrationDeadline: registrationDeadline,
-        attendees: attendees,
-      });
+      const {
+        login: { userInfo },
+      } = getState();
+
+      const { data } = await axios.post(
+        `${API_URL}/api/admin/createEvent`,
+        {
+          title: title,
+          description: description,
+          venue: venue,
+          date: date,
+          startTime: startTime,
+          endTime: endTime,
+          registrationDeadline: registrationDeadline,
+          attendees: attendees,
+        },
+        { headers: { Authorization: `Bearer ${userInfo.user.token}` } }
+      );
       dispatch({ type: CREATE_EVENT_SUCCESS, payload: data });
     } catch (error) {
       console.log("createNewEvent", error);
@@ -65,19 +89,28 @@ export const updateEvent =
     eventId,
     id
   ) =>
-  async (dispatch) => {
+  async (dispatch, getState) => {
     try {
-      const { data } = await axios.post(`/api/admin/updateEvent/${id}`, {
-        title: title,
-        description: description,
-        venue: venue,
-        date: date,
-        startTime: startTime,
-        endTime: endTime,
-        registrationDeadline: registrationDeadline,
-        attendees: attendees,
-        eventId: eventId,
-      });
+      const {
+        login: { userInfo },
+      } = getState();
+      const { data } = await axios.post(
+        `${API_URL}/api/admin/updateEvent/${id}`,
+        {
+          title: title,
+          description: description,
+          venue: venue,
+          date: date,
+          startTime: startTime,
+          endTime: endTime,
+          registrationDeadline: registrationDeadline,
+          attendees: attendees,
+          eventId: eventId,
+        },
+        {
+          headers: { Authorization: `Bearer ${userInfo.user.token}` },
+        }
+      );
       dispatch({ type: UPDATE_EVENT_SUCCESS, payload: data });
     } catch (error) {
       console.log("updateEvent", error);
@@ -86,7 +119,7 @@ export const updateEvent =
 
 export const getAllEvents = () => async (dispatch) => {
   try {
-    const { data } = await axios.get("/api/admin/events");
+    const { data } = await axios.get(`${API_URL}/api/admin/events`);
     dispatch({ type: ALL_EVENTS_SUCCESS, payload: data });
   } catch (error) {
     console.log("getAllEvents", error);
@@ -100,27 +133,56 @@ export const updateSuccess = () => async (dispatch) => {
   });
 };
 
-export const getEventDetail = (id) => async (dispatch) => {
+export const getEventDetail = (id) => async (dispatch, getState) => {
   try {
-    const { data } = await axios.get(`/api/admin/event/${id}`);
+    const {
+      login: { userInfo },
+    } = getState();
+    const { data } = await axios.get(`${API_URL}/api/admin/event/${id}`, {
+      headers: { Authorization: `Bearer ${userInfo.user.token}` },
+    });
     dispatch({ type: EVENT_DETAIL_SUCCESS, payload: data });
   } catch (error) {
     console.log("getEventDetail", error);
   }
 };
 
-export const deleteEvent = (eventId, id) => async (dispatch) => {
+export const deleteEvent = (eventId, id) => async (dispatch, getState) => {
   try {
-    const { data } = await axios.post(`/api/admin/delete/${id}`, {
-      eventId: eventId,
-    });
+    const {
+      login: { userInfo },
+    } = getState();
+    const { data } = await axios.post(
+      `${API_URL}/api/admin/delete/${id}`,
+      {
+        eventId: eventId,
+      },
+      {
+        headers: { Authorization: `Bearer ${userInfo.user.token}` },
+      }
+    );
     dispatch({ type: DELETE_EVENT_SUCCESS, payload: data });
   } catch (error) {
     console.log("deleteEvent", error);
   }
 };
 
-export const signout = () => (dispatch) => {
-  localStorage.clear();
-  dispatch({ type: SIGNOUT });
+export const signout = () => async (dispatch, getState) => {
+  try {
+    const {
+      login: { userInfo },
+    } = getState();
+
+    await axios
+      .get(`${API_URL}/api/admin/logout`, {
+        headers: { Authorization: `Bearer ${userInfo.user.token}` },
+      })
+      .then((res) => {
+        localStorage.clear();
+        window.location.href = "/login";
+        dispatch({ type: SIGNOUT });
+      });
+  } catch (error) {
+    console.log("signout Error", error);
+  }
 };

@@ -6,3 +6,6 @@
   width: 80%;
   margin: 0 auto;
 }
+.eventDetail .desc {
+  min-height: 40vh !important;
+}

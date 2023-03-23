@@ -4,10 +4,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import Button from "../../components/Button/Button";
-import LoadingBox from "../../components/Loading/LoadingBox";
 import MessageBox from "../../components/MessageBox/MessageBox";
 import MyNavbar from "../../components/Navbar/Navbar";
 import { createNewEvent, updateSuccess } from "../../redux/Admin/admin.actions";
+
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 import "./Create.css";
 
@@ -29,20 +32,17 @@ const CreateEvent = () => {
   const { createdEvent, success } = newEvent;
 
   if (success) {
+    toast.success("Event Created Successfully", {
+      autoClose: 5000,
+    });
     dispatch(updateSuccess());
-    navigate(`/event/${createdEvent?.id}`);
-  }
 
-  // if (success) {
-  //   // toast.success("Event Created Successfully", {
-  //   //   position: toast.POSITION.TOP_CENTER,
-  //   // });
-  //   navigate("/");
-  // }
+    setTimeout(() => navigate(`/event/${createdEvent?.id}`), 2000);
+  }
 
   const validateEmail = (e) => {
     let errors = {};
-    const emailValidation = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
+    const emailValidation = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (e.target.value) {
       if (email.match(emailValidation)) {
         setAttendee([...attendee, { email: e.target.value }]);
@@ -60,18 +60,34 @@ const CreateEvent = () => {
     setAttendee(r);
   };
   const createEvent = () => {
-    dispatch(
-      createNewEvent(
-        title,
-        description,
-        venue,
-        date,
-        startTime,
-        endTime,
-        registrationDeadline,
-        attendee
-      )
-    );
+    console.log("req");
+
+    if (
+      !title ||
+      !description ||
+      !venue ||
+      !date ||
+      !startTime ||
+      !endTime ||
+      !registrationDeadline
+    ) {
+      toast.error("Please Fill the Required Fields", {
+        autoClose: 5000,
+      });
+    } else {
+      dispatch(
+        createNewEvent(
+          title,
+          description,
+          venue,
+          date,
+          startTime,
+          endTime,
+          registrationDeadline,
+          attendee
+        )
+      );
+    }
   };
   return (
     <>
@@ -317,6 +333,7 @@ const CreateEvent = () => {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </>
   );
 };

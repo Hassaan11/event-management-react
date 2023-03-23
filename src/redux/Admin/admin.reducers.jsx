@@ -12,7 +12,7 @@ import {
 export const AdminReducer = (state = {}, action) => {
   switch (action.type) {
     case UPDATE_SUCCESS:
-      return { success: false };
+      return { ...state, success: false };
     case CREATE_EVENT_SUCCESS:
       return {
         ...state,

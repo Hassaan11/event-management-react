@@ -43,7 +43,7 @@ const EventDetail = () => {
             <h3>{eventDetail?.title}</h3>
           </div>
           <div className="description">
-            <div className="row">
+            <div className="row desc">
               <div className="col-md-7">
                 <h4>DESCRIPTION</h4>
                 <p>{eventDetail?.description}</p>
@@ -86,7 +86,7 @@ const EventDetail = () => {
           <div className="attendees">
             <div className="row">
               <h4>ATTENDEE</h4>
-              {eventDetail?.attendee.map((attende) => (
+              {eventDetail?.attendee?.map((attende) => (
                 <div className="d-flex align-items-center">
                   <h6 style={{ margin: 0, marginRight: 10 }}>
                     {attende.email}

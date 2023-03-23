@@ -12,11 +12,18 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import MyNavbar from "../../components/Navbar/Navbar";
-import { deleteEvent, getAllEvents } from "../../redux/Admin/admin.actions";
+import {
+  deleteEvent,
+  getAllEvents,
+  updateSuccess,
+} from "../../redux/Admin/admin.actions";
 import "./Events.css";
 import { TablePagination } from "@mui/material";
 import { Link } from "react-router-dom";
 import Button from "../../components/Button/Button";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 const Events = () => {
   const [page, setPage] = useState(0);
@@ -25,7 +32,7 @@ const Events = () => {
   const dispatch = useDispatch();
   const events = useSelector((state) => state.admin?.events);
   const eventDelete = useSelector((state) => state.admin);
-  const { events: allEvents } = eventDelete;
+  const { events: allEvents, success } = eventDelete;
 
   useEffect(() => {
     dispatch(getAllEvents());
@@ -51,6 +58,13 @@ const Events = () => {
   useEffect(() => {
     setEvent(allEvents);
   }, [allEvents]);
+
+  if (success) {
+    dispatch(updateSuccess());
+    toast.success("Event Deleted Successfully", {
+      autoClose: 5000,
+    });
+  }
 
   return (
     <>
@@ -99,7 +113,9 @@ const Events = () => {
                       // component={Link}
                       // to={`/event/${event.id}`}
                       key={event.id}
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                      sx={{
+                        "&:last-child td, &:last-child th": { border: 0 },
+                      }}
                     >
                       <TableCell component="th" scope="row">
                         <Link to={`/event/${event.id}`}>{event.title}</Link>
@@ -153,6 +169,7 @@ const Events = () => {
           />
         </div>
       </div>
+      <ToastContainer />
     </>
   );
 };
