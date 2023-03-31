@@ -19,6 +19,8 @@ const SignIn = () => {
   const loginToGoogle = useGoogleLogin({
     onSuccess: (codeResponse) => dispatch(loginCode(codeResponse)),
     flow: "auth-code",
+    scope:
+      "email profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly",
   });
 
   return (
