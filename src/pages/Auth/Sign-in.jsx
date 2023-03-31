@@ -41,7 +41,7 @@ const SignIn = () => {
 
           {/* <GoogleLogin
             // fetchBasicProfile={false}
-            clientId="162519831332-32p47ro0kkv76jjfm11ab5161ls43gsl.apps.googleusercontent.com"
+            clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
             buttonText="Login With Google"
             onSuccess={responseGoogle}
             onFailure={(err) => console.log("fail", err)}
