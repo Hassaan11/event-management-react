@@ -42,7 +42,7 @@ const EditEvent = () => {
 
   const validateEmail = (e) => {
     let errors = {};
-    const emailValidation = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
+    const emailValidation = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (e.target.value) {
       if (email.match(emailValidation)) {
         setAttendee([...attendee, { email: e.target.value }]);
