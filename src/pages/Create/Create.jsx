@@ -1,18 +1,23 @@
-import { TextField } from "@mui/material";
+import { TextField, Button as Button1 } from "@mui/material";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import Papa from "papaparse";
 
 import Button from "../../components/Button/Button";
 import MessageBox from "../../components/MessageBox/MessageBox";
 import MyNavbar from "../../components/Navbar/Navbar";
 import { createNewEvent, updateSuccess } from "../../redux/Admin/admin.actions";
 
+import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
 
 import "./Create.css";
+import moment from "moment";
 
 const CreateEvent = () => {
   const navigate = useNavigate();
@@ -45,7 +50,8 @@ const CreateEvent = () => {
     const emailValidation = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (e.target.value) {
       if (email.match(emailValidation)) {
-        setAttendee([...attendee, { email: e.target.value }]);
+        const exists = attendee?.find((d) => d.email === e.target.value);
+        if (!exists) setAttendee([...attendee, { email: e.target.value }]);
         setEmail("");
         setEmailError({});
       } else {
@@ -58,6 +64,45 @@ const CreateEvent = () => {
   const removeAttendee = (email) => {
     const r = attendee?.filter((a) => a.email !== email);
     setAttendee(r);
+  };
+
+  const handleFileChange = (e) => {
+    // Check if user has entered the file
+    if (e.target.files.length) {
+      const inputFile = e.target.files[0];
+
+      // Check the file extensions, if it not
+      // included in the allowed extensions
+      // we show the error
+      const fileExtension = inputFile?.type.split("/")[1];
+      if (!["csv"].includes(fileExtension)) {
+        toast.error("Please upload CSV File", {
+          autoClose: 5000,
+        });
+        return;
+      }
+
+      handleParse(inputFile);
+    }
+  };
+
+  const handleParse = (inputFile) => {
+    if (!inputFile) return;
+
+    const reader = new FileReader();
+
+    reader.onload = async ({ target }) => {
+      const csv = Papa.parse(target.result, { header: true });
+      const parsedData = csv?.data;
+      console.log("parsedData", parsedData);
+      const validEmails = parsedData.filter((email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email?.email?.trim());
+      });
+      console.log("validEmails", validEmails);
+      setAttendee([...attendee, ...validEmails]);
+    };
+    reader.readAsText(inputFile);
   };
   const createEvent = () => {
     console.log("req");
@@ -83,12 +128,14 @@ const CreateEvent = () => {
           date,
           startTime,
           endTime,
-          registrationDeadline,
+          // registrationDeadline,
+          moment(registrationDeadline?.$d).format(),
           attendee
         )
       );
     }
   };
+
   return (
     <>
       <MyNavbar />
@@ -114,7 +161,7 @@ const CreateEvent = () => {
                 type="string"
                 autoComplete="on"
                 autoFocus
-                error={!title}
+                // error={!title}
                 required
                 fullWidth
                 defaultValue={title}
@@ -133,7 +180,7 @@ const CreateEvent = () => {
                 name="venue"
                 type="string"
                 autoComplete="on"
-                error={!venue}
+                // error={!venue}
                 required
                 fullWidth
                 defaultValue={venue}
@@ -146,7 +193,7 @@ const CreateEvent = () => {
             </div>
           </div>
           <div className="row">
-            <div className="col-sm-4">
+            <div className="col-sm-6">
               <TextField
                 id="startTime"
                 label="startTime"
@@ -154,7 +201,7 @@ const CreateEvent = () => {
                 name="startTime"
                 type="time"
                 autoComplete="on"
-                error={!startTime}
+                // error={!startTime}
                 required
                 fullWidth
                 defaultValue={startTime}
@@ -165,7 +212,7 @@ const CreateEvent = () => {
                 InputLabelProps={{ shrink: true }}
               />
             </div>
-            <div className="col-sm-4">
+            <div className="col-sm-6">
               <TextField
                 id="endTime"
                 label="endTime"
@@ -174,7 +221,7 @@ const CreateEvent = () => {
                 type="time"
                 autoComplete="on"
                 InputLabelProps={{ shrink: true }}
-                error={!endTime}
+                // error={!endTime}
                 required
                 fullWidth
                 defaultValue={endTime}
@@ -184,7 +231,9 @@ const CreateEvent = () => {
                 onChange={(e) => setEndTime(e.target.value)}
               />
             </div>
-            <div className="col-sm-4">
+          </div>
+          <div className="row">
+            <div className="col-sm-6">
               <TextField
                 id="date"
                 label="date"
@@ -193,7 +242,7 @@ const CreateEvent = () => {
                 type="date"
                 autoComplete="on"
                 InputLabelProps={{ shrink: true }}
-                error={!date}
+                // error={!date}
                 required
                 fullWidth
                 defaultValue={date}
@@ -201,6 +250,73 @@ const CreateEvent = () => {
                 color="primary"
                 variant="outlined"
                 onChange={(e) => setDate(e.target.value)}
+              />
+            </div>
+
+            <div className="col-sm-6">
+              {/* <TextField
+                id="deadline"
+                label="Registration Deadline"
+                placeholder="Registration Deadline"
+                name="deadline"
+                type="date"
+                autoComplete="on"
+                InputLabelProps={{ shrink: true }}
+                // error={!registrationDeadline}
+                required
+                fullWidth
+                defaultValue={registrationDeadline}
+                size="sm"
+                color="primary"
+                variant="outlined"
+                onChange={(e) => setRegistrationDeadline(e.target.value)}
+              /> */}
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DateTimePicker
+                  className="w-100"
+                  renderInput={(props) => (
+                    <TextField
+                      id="deadline"
+                      label="Registration Deadline"
+                      name="deadline"
+                      required
+                      fullWidth
+                      placeholder="Registration Deadline"
+                      InputLabelProps={{ shrink: true }}
+                      {...props}
+                      error={false}
+                    />
+                  )}
+                  label="Registration Deadline"
+                  value={registrationDeadline}
+                  onChange={(newValue) => {
+                    setRegistrationDeadline(newValue);
+                  }}
+                />
+              </LocalizationProvider>
+            </div>
+          </div>
+          <div className="text-center alert-danger">{EmailError.email}</div>
+          <div className="row">
+            <div className="col-sm-12">
+              <TextField
+                placeholder="Description"
+                multiline
+                rows={6}
+                id="description"
+                label="Description"
+                name="description"
+                type="string"
+                autoComplete="on"
+                InputLabelProps={{ shrink: true }}
+                // error={!description}
+                required
+                fullWidth
+                defaultValue={description}
+                size="sm"
+                color="primary"
+                variant="outlined"
+                onChange={(e) => setDescription(e.target.value)}
               />
             </div>
           </div>
@@ -214,7 +330,7 @@ const CreateEvent = () => {
                 type="email"
                 autoComplete="on"
                 InputLabelProps={{ shrink: true }}
-                error={!email}
+                // error={!email}
                 required
                 fullWidth
                 value={email}
@@ -233,52 +349,19 @@ const CreateEvent = () => {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-
             <div className="col-sm-6">
-              <TextField
-                id="deadline"
-                label="Registration Deadline"
-                placeholder="Registration Deadline"
-                name="deadline"
-                type="date"
-                autoComplete="on"
-                InputLabelProps={{ shrink: true }}
-                error={!registrationDeadline}
-                required
-                fullWidth
-                defaultValue={registrationDeadline}
-                size="sm"
-                color="primary"
-                variant="outlined"
-                onChange={(e) => setRegistrationDeadline(e.target.value)}
-              />
+              <Button1
+                variant="contained"
+                component="label"
+                className="w-100"
+                style={{ height: "55px" }}
+                onChange={handleFileChange}
+              >
+                Read from CSV
+                <input type="file" hidden />
+              </Button1>
             </div>
           </div>
-          <div className="text-center alert-danger">{EmailError.email}</div>
-          <div className="row">
-            <div className="col-sm-12">
-              <TextField
-                placeholder="Description"
-                multiline
-                rows={6}
-                id="description"
-                label="Description"
-                name="description"
-                type="string"
-                autoComplete="on"
-                InputLabelProps={{ shrink: true }}
-                error={!description}
-                required
-                fullWidth
-                defaultValue={description}
-                size="sm"
-                color="primary"
-                variant="outlined"
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
-          </div>
-
           <div className="row">
             <h6 className="text-center">List of Attendees</h6>
             <div className="col-sm-12">
@@ -287,7 +370,7 @@ const CreateEvent = () => {
                 style={{
                   border:
                     attendee.length <= 0
-                      ? "1px solid red"
+                      ? "1px solid lightgray"
                       : "1px solid lightgray",
                 }}
               >

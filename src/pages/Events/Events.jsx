@@ -28,7 +28,7 @@ import { toast } from "react-toastify";
 const Events = () => {
   const [page, setPage] = useState(0);
   const [event, setEvent] = useState([]);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(15);
   const dispatch = useDispatch();
   const events = useSelector((state) => state.admin?.events);
   const eventDelete = useSelector((state) => state.admin);
@@ -159,7 +159,7 @@ const Events = () => {
             </Table>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[10, 15, 25]}
             component="div"
             count={event?.length}
             rowsPerPage={rowsPerPage}

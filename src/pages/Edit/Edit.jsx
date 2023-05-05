@@ -15,6 +15,8 @@ import {
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
+import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 import "./Edit.css";
 
@@ -93,7 +95,10 @@ const EditEvent = () => {
           moment(date).format("YYYY-MM-DD"),
           startTime,
           endTime,
-          moment(registrationDeadline).format("YYYY-MM-DD"),
+          // moment(registrationDeadline).format("YYYY-MM-DD"),
+          registrationDeadline && registrationDeadline.$d
+            ? moment(registrationDeadline?.$d).format()
+            : registrationDeadline,
           attendee,
           eventDetail?.eventId,
           id
@@ -141,7 +146,7 @@ const EditEvent = () => {
                 type="string"
                 autoComplete="on"
                 autoFocus
-                error={!title}
+                // error={!title}
                 required
                 fullWidth
                 defaultValue={title}
@@ -161,7 +166,7 @@ const EditEvent = () => {
                 name="venue"
                 type="string"
                 autoComplete="on"
-                error={!venue}
+                // error={!venue}
                 required
                 fullWidth
                 defaultValue={venue}
@@ -183,7 +188,7 @@ const EditEvent = () => {
                 name="startTime"
                 type="time"
                 autoComplete="on"
-                error={!startTime}
+                // error={!startTime}
                 required
                 fullWidth
                 defaultValue={startTime}
@@ -204,7 +209,7 @@ const EditEvent = () => {
                 type="time"
                 autoComplete="on"
                 InputLabelProps={{ shrink: true }}
-                error={!endTime}
+                // error={!endTime}
                 required
                 fullWidth
                 defaultValue={endTime}
@@ -224,7 +229,7 @@ const EditEvent = () => {
                 type="date"
                 autoComplete="on"
                 InputLabelProps={{ shrink: true }}
-                error={!date}
+                // error={!date}
                 required
                 fullWidth
                 defaultValue={date}
@@ -246,7 +251,7 @@ const EditEvent = () => {
                 type="email"
                 autoComplete="on"
                 InputLabelProps={{ shrink: true }}
-                error={!email}
+                // error={!email}
                 required
                 fullWidth
                 value={email}
@@ -267,7 +272,7 @@ const EditEvent = () => {
             </div>
 
             <div className="col-sm-6">
-              <TextField
+              {/* <TextField
                 id="deadline"
                 label="Registration Deadline"
                 placeholder="Registration Deadline"
@@ -284,7 +289,30 @@ const EditEvent = () => {
                 color="primary"
                 variant="outlined"
                 onChange={(e) => setRegistrationDeadline(e.target.value)}
-              />
+              /> */}
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DateTimePicker
+                  className="w-100"
+                  renderInput={(props) => (
+                    <TextField
+                      id="deadline"
+                      label="Registration Deadline"
+                      name="deadline"
+                      required
+                      fullWidth
+                      placeholder="Registration Deadline"
+                      InputLabelProps={{ shrink: true }}
+                      {...props}
+                      error={false}
+                    />
+                  )}
+                  label="Registration Deadline"
+                  value={registrationDeadline}
+                  onChange={(newValue) => {
+                    setRegistrationDeadline(newValue);
+                  }}
+                />
+              </LocalizationProvider>
             </div>
           </div>
           <div className="text-center alert-danger">{EmailError.email}</div>
@@ -300,7 +328,7 @@ const EditEvent = () => {
                 type="string"
                 autoComplete="on"
                 InputLabelProps={{ shrink: true }}
-                error={!description}
+                // error={!description}
                 required
                 fullWidth
                 defaultValue={description}

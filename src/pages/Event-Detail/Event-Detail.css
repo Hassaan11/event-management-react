@@ -1,5 +1,6 @@
 .eventDetail {
   width: 100%;
+  margin-bottom: 20px;
 }
 .description,
 .attendees {
@@ -8,4 +9,18 @@
 }
 .eventDetail .desc {
   min-height: 40vh !important;
+}
+
+.box1 {
+  min-height: 100px;
+  width: 80%;
+  margin: 0 auto;
+
+  z-index: 100;
+}
+
+.line {
+  height: 1px;
+  width: 100%;
+  background-color: lightgray;
 }

@@ -1,9 +1,9 @@
 import { Routes, Route } from "react-router-dom";
-import React from "react";
+import React, { useEffect } from "react";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "react-bootstrap/dist/react-bootstrap.min.js";
 
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Navigate } from "react-router-dom";
 
 import Events from "./pages/Events/Events";
@@ -12,9 +12,18 @@ import Error404 from "./pages/Error/Error404";
 import EventDetail from "./pages/Event-Detail/Event-Detail";
 import CreateEvent from "./pages/Create/Create";
 import EditEvent from "./pages/Edit/Edit";
+import { validateToken } from "./pages/utils";
+import { signout } from "./redux/Admin/admin.actions";
 
 function App() {
+  const dispatch = useDispatch();
   const user = useSelector((state) => state?.login?.userInfo?.user);
+
+  useEffect(() => {
+    validateToken(user)
+      .then((res) => console.log(res.data))
+      .catch((err) => dispatch(signout()));
+  }, []);
 
   return (
     <>
