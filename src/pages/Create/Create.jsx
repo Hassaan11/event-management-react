@@ -315,7 +315,7 @@ const CreateEvent = () => {
               </LocalizationProvider>
             </div>
           </div>
-          <div className="text-center alert-danger">{EmailError.email}</div>
+
           <div className="row">
             <div className="col-sm-12">
               <TextField
@@ -358,14 +358,16 @@ const CreateEvent = () => {
                 color="primary"
                 variant="outlined"
                 onKeyPress={(e) => {
-                  if (e.key === "Enter") {
+                  if (e.key === "Enter" || e.key === " " || e.key === ",") {
                     validateEmail(e);
                   }
                 }}
                 onBlur={(e) => {
                   validateEmail(e);
                 }}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  if (e.target.value !== ",") setEmail(e.target.value);
+                }}
               />
             </div>
             <div className="col-sm-6">
@@ -381,6 +383,7 @@ const CreateEvent = () => {
               </Button1>
             </div>
           </div>
+          <div className="text-center alert-danger">{EmailError.email}</div>
           <div className="row">
             <h6 className="text-center">List of Attendees</h6>
             <div className="col-sm-12">

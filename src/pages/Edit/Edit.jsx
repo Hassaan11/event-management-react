@@ -49,7 +49,8 @@ const EditEvent = () => {
     const emailValidation = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (e.target.value) {
       if (email.match(emailValidation)) {
-        setAttendee([...attendee, { email: e.target.value }]);
+        const exists = attendee?.find((d) => d.email === e.target.value);
+        if (!exists) setAttendee([...attendee, { email: e.target.value }]);
         setEmail("");
         setEmailError({});
       } else {
@@ -346,7 +347,7 @@ const EditEvent = () => {
               </LocalizationProvider>
             </div>
           </div>
-          <div className="text-center alert-danger">{EmailError.email}</div>
+
           <div className="row">
             <div className="col-sm-12">
               <TextField
@@ -389,14 +390,16 @@ const EditEvent = () => {
                 color="primary"
                 variant="outlined"
                 onKeyPress={(e) => {
-                  if (e.key === "Enter") {
+                  if (e.key === "Enter" || e.key === " " || e.key === ",") {
                     validateEmail(e);
                   }
                 }}
                 onBlur={(e) => {
                   validateEmail(e);
                 }}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  if (e.target.value !== ",") setEmail(e.target.value);
+                }}
               />
             </div>
             <div className="col-sm-6">
@@ -412,6 +415,7 @@ const EditEvent = () => {
               </Button1>
             </div>
           </div>
+          <div className="text-center alert-danger">{EmailError.email}</div>
           <div className="row">
             <h6 className="text-center">List of Attendees</h6>
             <div className="col-sm-12">
