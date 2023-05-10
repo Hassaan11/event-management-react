@@ -1,5 +1,5 @@
 import { TextField, Button as Button1 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Papa from "papaparse";
@@ -32,6 +32,7 @@ const CreateEvent = () => {
   const [email, setEmail] = useState("");
   const [attendee, setAttendee] = useState([]);
   const [EmailError, setEmailError] = useState({});
+  const [open, setOpen] = useState(false);
 
   const newEvent = useSelector((state) => state.admin);
   const { createdEvent, success } = newEvent;
@@ -135,6 +136,9 @@ const CreateEvent = () => {
       );
     }
   };
+  const startTimeRef = useRef();
+  const endTimeRef = useRef();
+  const DateRef = useRef();
 
   return (
     <>
@@ -202,6 +206,10 @@ const CreateEvent = () => {
                 type="time"
                 autoComplete="on"
                 // error={!startTime}
+                inputRef={startTimeRef}
+                onClick={() => {
+                  startTimeRef.current.showPicker();
+                }}
                 required
                 fullWidth
                 defaultValue={startTime}
@@ -222,6 +230,10 @@ const CreateEvent = () => {
                 autoComplete="on"
                 InputLabelProps={{ shrink: true }}
                 // error={!endTime}
+                inputRef={endTimeRef}
+                onClick={() => {
+                  endTimeRef.current.showPicker();
+                }}
                 required
                 fullWidth
                 defaultValue={endTime}
@@ -243,6 +255,10 @@ const CreateEvent = () => {
                 autoComplete="on"
                 InputLabelProps={{ shrink: true }}
                 // error={!date}
+                inputRef={DateRef}
+                onClick={() => {
+                  DateRef.current.showPicker();
+                }}
                 required
                 fullWidth
                 defaultValue={date}
@@ -274,6 +290,8 @@ const CreateEvent = () => {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DateTimePicker
                   className="w-100"
+                  open={open}
+                  onClose={() => setOpen(false)}
                   renderInput={(props) => (
                     <TextField
                       id="deadline"
@@ -284,6 +302,7 @@ const CreateEvent = () => {
                       placeholder="Registration Deadline"
                       InputLabelProps={{ shrink: true }}
                       {...props}
+                      onClick={() => setOpen(true)}
                       error={false}
                     />
                   )}

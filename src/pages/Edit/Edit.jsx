@@ -1,8 +1,9 @@
-import { TextField } from "@mui/material";
+import { TextField, Button as Button1 } from "@mui/material";
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import Papa from "papaparse";
 
 import Button from "../../components/Button/Button";
 import MessageBox from "../../components/MessageBox/MessageBox";
@@ -41,6 +42,7 @@ const EditEvent = () => {
   const [email, setEmail] = useState("");
   const [attendee, setAttendee] = useState(eventDetail?.attendee || []);
   const [EmailError, setEmailError] = useState({});
+  const [open, setOpen] = useState(false);
 
   const validateEmail = (e) => {
     let errors = {};
@@ -111,6 +113,45 @@ const EditEvent = () => {
     dispatch(getEventDetail(id));
   }, [id]);
 
+  const handleFileChange = (e) => {
+    // Check if user has entered the file
+    if (e.target.files.length) {
+      const inputFile = e.target.files[0];
+
+      // Check the file extensions, if it not
+      // included in the allowed extensions
+      // we show the error
+      const fileExtension = inputFile?.type.split("/")[1];
+      if (!["csv"].includes(fileExtension)) {
+        toast.error("Please upload CSV File", {
+          autoClose: 5000,
+        });
+        return;
+      }
+
+      handleParse(inputFile);
+    }
+  };
+
+  const handleParse = (inputFile) => {
+    if (!inputFile) return;
+
+    const reader = new FileReader();
+
+    reader.onload = async ({ target }) => {
+      const csv = Papa.parse(target.result, { header: true });
+      const parsedData = csv?.data;
+      console.log("parsedData", parsedData);
+      const validEmails = parsedData.filter((email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email?.email?.trim());
+      });
+      console.log("validEmails", validEmails);
+      setAttendee([...attendee, ...validEmails]);
+    };
+    reader.readAsText(inputFile);
+  };
+
   useEffect(() => {
     setTitle(eventDetail?.title);
     setDescription(eventDetail?.description);
@@ -121,6 +162,10 @@ const EditEvent = () => {
     setRegistrationDeadline(eventDetail?.registrationDeadline);
     setAttendee(eventDetail?.attendee);
   }, [eventDetail]);
+
+  const startTimeRef = useRef();
+  const endTimeRef = useRef();
+  const DateRef = useRef();
 
   return (
     <>
@@ -180,7 +225,7 @@ const EditEvent = () => {
             </div>
           </div>
           <div className="row">
-            <div className="col-sm-4">
+            <div className="col-sm-6">
               <TextField
                 id="startTime"
                 label="startTime"
@@ -189,6 +234,10 @@ const EditEvent = () => {
                 type="time"
                 autoComplete="on"
                 // error={!startTime}
+                inputRef={startTimeRef}
+                onClick={() => {
+                  startTimeRef.current.showPicker();
+                }}
                 required
                 fullWidth
                 defaultValue={startTime}
@@ -200,7 +249,7 @@ const EditEvent = () => {
                 InputLabelProps={{ shrink: true }}
               />
             </div>
-            <div className="col-sm-4">
+            <div className="col-sm-6">
               <TextField
                 id="endTime"
                 label="endTime"
@@ -210,6 +259,10 @@ const EditEvent = () => {
                 autoComplete="on"
                 InputLabelProps={{ shrink: true }}
                 // error={!endTime}
+                inputRef={endTimeRef}
+                onClick={() => {
+                  endTimeRef.current.showPicker();
+                }}
                 required
                 fullWidth
                 defaultValue={endTime}
@@ -220,7 +273,9 @@ const EditEvent = () => {
                 onChange={(e) => setEndTime(e.target.value)}
               />
             </div>
-            <div className="col-sm-4">
+          </div>
+          <div className="row">
+            <div className="col-sm-6">
               <TextField
                 id="date"
                 label="date"
@@ -230,6 +285,10 @@ const EditEvent = () => {
                 autoComplete="on"
                 InputLabelProps={{ shrink: true }}
                 // error={!date}
+                inputRef={DateRef}
+                onClick={() => {
+                  DateRef.current.showPicker();
+                }}
                 required
                 fullWidth
                 defaultValue={date}
@@ -240,37 +299,6 @@ const EditEvent = () => {
                 onChange={(e) => setDate(e.target.value)}
               />
             </div>
-          </div>
-          <div className="row">
-            <div className="col-sm-6">
-              <TextField
-                id="email"
-                label="Attendee"
-                placeholder="Attendee"
-                name="email"
-                type="email"
-                autoComplete="on"
-                InputLabelProps={{ shrink: true }}
-                // error={!email}
-                required
-                fullWidth
-                value={email}
-                defaultValue={email}
-                size="sm"
-                color="primary"
-                variant="outlined"
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") {
-                    validateEmail(e);
-                  }
-                }}
-                onBlur={(e) => {
-                  validateEmail(e);
-                }}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-
             <div className="col-sm-6">
               {/* <TextField
                 id="deadline"
@@ -293,6 +321,8 @@ const EditEvent = () => {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DateTimePicker
                   className="w-100"
+                  open={open}
+                  onClose={() => setOpen(false)}
                   renderInput={(props) => (
                     <TextField
                       id="deadline"
@@ -303,6 +333,7 @@ const EditEvent = () => {
                       placeholder="Registration Deadline"
                       InputLabelProps={{ shrink: true }}
                       {...props}
+                      onClick={() => setOpen(true)}
                       error={false}
                     />
                   )}
@@ -339,7 +370,48 @@ const EditEvent = () => {
               />
             </div>
           </div>
-
+          <div className="row">
+            <div className="col-sm-6">
+              <TextField
+                id="email"
+                label="Attendee"
+                placeholder="Attendee"
+                name="email"
+                type="email"
+                autoComplete="on"
+                InputLabelProps={{ shrink: true }}
+                // error={!email}
+                required
+                fullWidth
+                value={email}
+                defaultValue={email}
+                size="sm"
+                color="primary"
+                variant="outlined"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    validateEmail(e);
+                  }
+                }}
+                onBlur={(e) => {
+                  validateEmail(e);
+                }}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="col-sm-6">
+              <Button1
+                variant="contained"
+                component="label"
+                className="w-100"
+                style={{ height: "55px" }}
+                onChange={handleFileChange}
+              >
+                Read from CSV
+                <input type="file" hidden />
+              </Button1>
+            </div>
+          </div>
           <div className="row">
             <h6 className="text-center">List of Attendees</h6>
             <div className="col-sm-12">
